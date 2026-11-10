@@ -1,0 +1,90 @@
+type Value = 
+ variant {
+   "bool": bool;
+   float: float64;
+   "int": int;
+   "nat": nat;
+   "null";
+   "text": text;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type Result__1 = 
+ variant {
+   err: Error;
+   ok;
+ };
+type Result = 
+ record {
+   hasMore: bool;
+   rows: vec vec Cell;
+ };
+type QuickAction = 
+ record {
+   icon: text;
+   id: text;
+   title: Label;
+ };
+type MonthlyExpense = 
+ record {
+   amountCents: AmountCents;
+   month: Label;
+ };
+type Label = text;
+type Error = 
+ variant {
+   AmbiguousAttribute: record {
+                         field: text;
+                         sources: vec text;
+                       };
+   FrontendOriginMismatch: record {
+                             expected: vec text;
+                             got: text;
+                           };
+   FrontendOriginsNotConfigured;
+   MalformedCandid;
+   MissingField: text;
+   MixedSsoSources: record {
+                      otherKeys: vec text;
+                      ssoKeys: vec text;
+                    };
+   NoAttributes;
+   Stale: record {ageNs: nat;};
+   UnknownNonce;
+   UntrustedSsoSource: record {domain: text;};
+ };
+type Cell = 
+ record {
+   name: text;
+   value: Value;
+ };
+type Balance = 
+ record {
+   amountCents: AmountCents;
+   currency: text;
+   title: Label;
+ };
+type AmountCents = nat;
+service : {
+  _initialize_access_control: () -> ();
+  _internet_identity_sign_in_finish: () -> (Result__1);
+  _internet_identity_sign_in_start: () -> (blob);
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  execute: (qJson: text) -> (Result) query;
+  /// Returns static Markdown documentation for the NeoFlow dashboard API.
+  getApiDoc: () -> (text) query;
+  /// Returns the account balance shown on the dashboard.
+  getBalance: () -> (Balance) query;
+  getCallerUserRole: () -> (UserRole) query;
+  /// Returns monthly expense totals for the last several months,
+  /// ordered oldest to newest.
+  getMonthlyExpenses: () -> (vec MonthlyExpense) query;
+  /// Returns the fixed, ordered set of dashboard quick actions.
+  getQuickActions: () -> (vec QuickAction) query;
+  isCallerAdmin: () -> (bool) query;
+  schema: () -> (text) query;
+}
